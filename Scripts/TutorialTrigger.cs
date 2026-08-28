@@ -10,9 +10,8 @@ public class TutorialTrigger : MonoBehaviour
     private bool hastriggerd = false;
     private void OnTriggerEnter(Collider other)
     {
-        // 자식 콜라이더로 들어와도 부모의 슬라임을 찾는다
-        if (other.GetComponentInParent<SlimeLaunchController>() == null) return;
-        if(hastriggerd) return;
+        if (other.GetComponentInParent<SlimeLaunchController>() == null) return; // 자식콜라이더라서 parent로찾아야됨
+        if(hastriggerd) return; // 두번들어가서 대사두번나옴
         
         hastriggerd = true;
         

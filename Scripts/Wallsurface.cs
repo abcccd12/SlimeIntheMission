@@ -6,7 +6,7 @@ public class Wallsurface : MonoBehaviour
 {
 
 
-    // 비 오는 동안 true → Normal 벽이 Slippery처럼 동작
+    // 비오면 일반벽이 미끄러워야해서 이렇게함. 가시는그대로
     
         
     public enum WallType
@@ -15,13 +15,10 @@ public class Wallsurface : MonoBehaviour
         Slippery,
         Spike,
         Rayfire,
-        Stick       // 닿으면 발사 종류와 상관없이 '무조건' 즉시 붙는다 (튜토 착지용/특수 벽)
+        Stick       // 튜토착지용. 튕기면 착지못함
     }
     
     public static bool GlobalSlippery = false;
-
-// 게터가 전역 상태를 반영. (Spike/Rayfire는 그대로 두고 Normal만 미끄럽게)
-    
 
     
     public enum  MaterialType

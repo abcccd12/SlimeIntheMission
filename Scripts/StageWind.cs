@@ -47,16 +47,16 @@ public class StageWind : MonoBehaviour
        
         if(!other.CompareTag("Slime")) return;
         SlimeLaunchController slime = other.GetComponentInChildren<SlimeLaunchController>();
-        if(slime == null) Debug.Log("slimenulll");
+        if(slime == null) Debug.Log("slimenulll"); // 예외처리 안했더니오류생김 근데로그만침 왜
         slime.SetWind(windvector);
     }
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Slime")) return;
         SlimeLaunchController slime = other.GetComponentInParent<SlimeLaunchController>();
-        if (slime == null) return;
+        if (slime == null) return; // 나갈때 바람안꺼져서 계속밀림
 
-        slime.SetWind(Vector3.zero);  // 존 나가면 바람 끔
+        slime.SetWind(Vector3.zero);
     }
 
     void Start()

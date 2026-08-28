@@ -11,7 +11,7 @@ public class beautify : MonoBehaviour
         value => BeautifySettings.settings.brightness.Override(value),
         target,
         duration
-        ).SetEase(Ease.InOutSine);
+        ).SetEase(Ease.InOutSine); // linear하니까 티남
     }
     
     public void ChangeContrast(float target, float duration)

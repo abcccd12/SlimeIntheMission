@@ -65,7 +65,7 @@ public class TutorialSequence : MonoBehaviour
         Debug.Log($"sllme transform{slime.transform}");
         slimeRb.isKinematic = false;
 
-        slime.GetComponent<Collider>().enabled = false;
+        slime.GetComponent<Collider>().enabled = false; // 낙하중에벽붙어서 꺼둠
         
         Debug.Log($"kinematic{slimeRb.isKinematic}");
         slimeRb.useGravity  = true;
@@ -73,7 +73,7 @@ public class TutorialSequence : MonoBehaviour
 
         
         
-        slime.SetControlLocked(true);   // 낙하 중 입력 차단
+        slime.SetControlLocked(true);   // 낙하 중 클릭되서 막음
     }
 
     private void Update()
@@ -131,7 +131,7 @@ public class TutorialSequence : MonoBehaviour
         
 
         slime.SetControlLocked(true);   // 읽는 동안 조작 막기
-        Time.timeScale = 0f;
+        Time.timeScale = 0f; // 안멈추니까 대사중에슬라임움직임 짜증
         
         SetPage(0, true);
     }

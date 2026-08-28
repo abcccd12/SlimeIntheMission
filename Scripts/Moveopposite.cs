@@ -121,11 +121,11 @@ public class Moveopposite : MonoBehaviour
         Collider myCollider = GetComponent<Collider>();
         if (myCollider != null) myCollider.enabled = false;
         isdead = true;
-        // 2. 사망 애니메이션 즉시 재생 (0.25초 동안 부드럽게 전환)
+        // fade 안넣으니까 죽는모션 바로잘림
         
         animancer.Play(die_anim, 0.25f);
         
-        // 3. 2초 뒤에 '이 버섯 오브젝트 전체'를 씬에서 파괴
+        // 안지우면 콜라이더남음
         Destroy(gameObject, 2f);
     }
 

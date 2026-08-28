@@ -1,10 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// 패턴 한 장. 인스펙터에 자식을 넣지 않고, 자기 아래 이름으로만 찾는다.
-/// 푸드: tiny, normal, big, huge
-/// 패턴: FrogsPatternEasy, FrogsPatternNormal, FrogsPatternDifficult, FrogsPatternGravity
-/// </summary>
 public class Obstacle : MonoBehaviour
 {
     private GameObject tiny;
@@ -54,7 +49,7 @@ public class Obstacle : MonoBehaviour
 
     public void Apply(float worldY, SlimeSizeController.SizeState size)
     {
-        BindByName();
+        BindByName(); // 풀에서 다시키면 참조 null되더라
         ApplyDifficulty(worldY);
         ApplyFood(size);
         _lastFoodBand = FoodBand(worldY);
@@ -63,7 +58,7 @@ public class Obstacle : MonoBehaviour
     public void RefreshFood(float slimeY, SlimeSizeController.SizeState size)
     {
         int band = FoodBand(slimeY);
-        if (band == _lastFoodBand) return;
+        if (band == _lastFoodBand) return; // 매프레임바꾸니까 깜빡임
         _lastFoodBand = band;
         ApplyFood(size);
     }
@@ -104,12 +99,12 @@ public class Obstacle : MonoBehaviour
         SetExclusive(pick, tiny, foodNormal, big, huge);
     }
 
-    private int FoodBand(float y) => Mathf.FloorToInt(y / Mathf.Max(0.01f, foodStep));
+    private int FoodBand(float y) => Mathf.FloorToInt(y / Mathf.Max(0.01f, foodStep)); // 0나누기터짐
 
     private static string CleanName(string name)
     {
         int p = name.IndexOf('(');
-        if (p > 0) name = name.Substring(0, p);
+        if (p > 0) name = name.Substring(0, p); // Clone (1) 이래서 이름매칭안됨
         return name.Trim().ToLowerInvariant();
     }
 
@@ -117,7 +112,7 @@ public class Obstacle : MonoBehaviour
     {
         for (int i = 0; i < group.Length; i++)
         {
-            if (group[i] == null) continue;
+            if (group[i] == null) continue; // 예외처리 안했더니오류생김
             group[i].SetActive(group[i] == on);
         }
     }

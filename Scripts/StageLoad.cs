@@ -1,41 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// "카드 덱" 방식의 세로 무한 맵 청크 매니저.
-/// - 프리팹마다 인스턴스를 '딱 1개씩' 미리 생성해 재사용(메모리 효율).
-/// - 화면엔 visibleCount개만 켜두고, 슬라임이 위로 올라가면
-///   맨 아래 청크를 끄고(덱 반환) 새 카드를 맨 위에 붙인다.
-/// </summary>
 public class StageLoad : MonoBehaviour
 {
     [Header("카드 덱 (맵 청크 프리팹들)")]
     [SerializeField] private List<GameObject> chunkPrefabs = new List<GameObject>();
 
     [Header("배치 설정")]
-    [Tooltip("청크 하나의 Y 높이(간격). 예: 360")]
-    [SerializeField] private float chunkHeight = 360f;
-    [Tooltip("동시에 켜둘 청크 수(창 크기). 예: 4")]
+    [SerializeField] private float chunkHeight = 360f; // 청크 y간격
     [SerializeField] private int visibleCount = 4;
-    [Tooltip("맨 아래(첫) 청크가 놓일 위치")]
     [SerializeField] private Vector3 startPosition = Vector3.zero;
 
     [Header("재배치 트리거")]
-    [Tooltip("기준이 되는 슬라임")]
     [SerializeField] private Transform slime;
-    [Tooltip("슬라임이 '맨 아래 청크'보다 이만큼 위로 올라가면 재배치")]
-    [SerializeField] private float recycleDistance = 720f;
+    [SerializeField] private float recycleDistance = 720f; // 이만큼 올라가면 맨아래 재사용
 
     [Header("진행 / 뽑기")]
-    [Tooltip("총 스폰할 청크 수. 0 이하이면 무한 반복.")]
-    [SerializeField] private int totalChunks = 0;
-    [Tooltip("true=무작위(직전 것 제외), false=덱 순서대로")]
+    [SerializeField] private int totalChunks = 0; // 0이면 무한
     [SerializeField] private bool drawRandom = true;
 
-    // ── 내부 상태 ──────────────────────────────
-    private readonly List<GameObject> _pool   = new List<GameObject>(); // 프리팹당 1개 (전체 덱)
-    private readonly List<GameObject> _active = new List<GameObject>(); // 켜진 청크 (아래→위 순서)
-    private readonly List<GameObject> _avail  = new List<GameObject>(); // 뽑기 후보(재사용 버퍼, GC 방지)
+    private readonly List<GameObject> _pool   = new List<GameObject>();
+    private readonly List<GameObject> _active = new List<GameObject>();
+    private readonly List<GameObject> _avail  = new List<GameObject>();
 
 
     [Header("장애물 패턴 덱")]
@@ -53,13 +39,13 @@ public class StageLoad : MonoBehaviour
     private SlimeSizeController _size;
 
 
-    // 프리팹에서 꺼져 있던 자식. 루트를 SetActive(true)해도 다시 켜지지 않게 복구한다.
+    // 루트 setactive하면 꺼둔자식도 같이켜짐  sav해둠 왜이래
     private readonly Dictionary<GameObject, List<GameObject>> _inactiveChildren
         = new Dictionary<GameObject, List<GameObject>>();
-    private float _topY;            // 현재 맨 위 청크의 y
-    private int _spawnedCount;      // 지금까지 스폰한 총 개수
-    private int _seqIndex;          // 순서대로 뽑기 커서
-    private GameObject _lastDrawn;  // 직전에 뽑은 카드(연속 방지)
+    private float _topY;
+    private int _spawnedCount;
+    private int _seqIndex;
+    private GameObject _lastDrawn;
     private bool _mainChunksStarted;
     
     [SerializeField] private GameObject cameraTarget;
@@ -69,7 +55,6 @@ public class StageLoad : MonoBehaviour
 
     private void Awake()
     {
-        // 프리팹마다 인스턴스 1개씩만 생성 → 이후엔 SetActive로 재사용 (메모리 1회 할당)
         foreach (var prefab in chunkPrefabs)
         {
             if (prefab == null) continue;
@@ -115,12 +100,11 @@ public class StageLoad : MonoBehaviour
         bool tutoDone = TutorialSequence.IsDone();
         Debug.Log($"tutoDone={tutoDone}");
         if (!tutoDone)
-            return; // 튜토 중엔 청크 스폰 안 함. 끝나면 TutorialSequence가 BeginMainChunks 호출
+            return; // 튜토중에 맵스폰되서 막음
 
         BeginMainChunks();
     }
 
-    /// <summary>본게임 시작: 튜토 끄고 청크 창을 채운다. 두 번 불려도 한 번만 실행.</summary>
     public void BeginMainChunks()
     {
         if (_mainChunksStarted) return;
@@ -132,7 +116,7 @@ public class StageLoad : MonoBehaviour
         if (Slime != null && startpos != null)
             Slime.transform.position = startpos.transform.position;
         if (cameraTarget != null)
-            cameraTarget.transform.position = new Vector3(0.49000001f, 14.1948071f, 0f);
+            cameraTarget.transform.position = new Vector3(0.49000001f, 14.1948071f, 0f); // 이거 반올림하니까 위치어긋남 그냥복붙
 
         _topY = startPosition.y - chunkHeight;
         for (int i = 0; i < visibleCount; i++)
@@ -180,20 +164,17 @@ public class StageLoad : MonoBehaviour
 
     private void RecycleBottom()
     {
-        // 1) 맨 아래 청크 끄고 덱으로 반환
         GameObject bottom = _active[0];
         _active.RemoveAt(0);
         bottom.SetActive(false);
 
-        // 2) 지정 횟수를 다 뽑았으면(무한 아님) 더 안 붙임
         if (totalChunks > 0 && _spawnedCount >= totalChunks)
         {
             if (_active.Count == 0)
-                OnAllChunksCleared(); // 마지막 청크까지 지나감 → 종료 지점
+                OnAllChunksCleared();
             return;
         }
 
-        // 3) 새 카드 맨 위에 붙이기
         SpawnNextOnTop();
     }
 
@@ -262,7 +243,7 @@ public class StageLoad : MonoBehaviour
 
         int pick = Random.Range(0, _obstacleAvail.Count);
         if (_obstacleAvail.Count > 1 && _obstacleAvail[pick] == _lastDrawnObstacle)
-            pick = (pick + 1) % _obstacleAvail.Count;
+            pick = (pick + 1) % _obstacleAvail.Count; // 같은패턴 두번나와서 +1함
         return _obstacleAvail[pick];
     }
 
@@ -290,7 +271,6 @@ public class StageLoad : MonoBehaviour
         }
     }
 
-    /// <summary>대기 중(꺼진) 인스턴스 중 하나를 뽑는다.</summary>
     private GameObject DrawCard()
     {
         _avail.Clear();
@@ -299,20 +279,18 @@ public class StageLoad : MonoBehaviour
 
         if (_avail.Count == 0) return null;
 
-        if (!drawRandom)  // 순서대로
+        if (!drawRandom)
             return _avail[_seqIndex++ % _avail.Count];
 
-        // 무작위 (직전 것과 같으면 한 칸 밀어 연속 방지)
         int pick = Random.Range(0, _avail.Count);
         if (_avail.Count > 1 && _avail[pick] == _lastDrawn)
             pick = (pick + 1) % _avail.Count;
         return _avail[pick];
     }
 
-    /// <summary>지정 횟수를 다 돌고 마지막 청크까지 지나갔을 때. (클리어 연출 연결)</summary>
     private void OnAllChunksCleared()
     {
         Debug.Log("[StageLoad] 모든 청크 통과 - 스테이지 클리어");
-        // TODO: 여기서 StageManager.Instance.GotoStage(...) 등 연결
+        // TODO 클리어연결 아직안함
     }
 }

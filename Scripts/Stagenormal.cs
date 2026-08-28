@@ -22,7 +22,7 @@ public class Stagenormal : MonoBehaviour
     {
         if(other.CompareTag("Slime"))
         {
-            //baseMusic.PlayFeedbacks();
+            //baseMusic.PlayFeedbacks(); // 테마매니저로옮김 여기두면 겹침
             
         }
     }

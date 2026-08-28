@@ -25,7 +25,7 @@ public class StageGravity : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!_active.Contains(this)) _active.Add(this);
+        if (!_active.Contains(this)) _active.Add(this); // 리스트에안넣으니까 힘계산안됨
         EnsurePlayLines();
         if (_playRoot != null) _playRoot.gameObject.SetActive(true);
     }
@@ -48,7 +48,7 @@ public class StageGravity : MonoBehaviour
         float dist = toCenter.magnitude;
 
         if (dist > radius || dist < 0.0001f)
-            return Vector3.zero;
+            return Vector3.zero; // 중심에서 0나누기터짐
 
         float falloff = 1f - (dist / radius);
         Vector3 dir = toCenter / dist;

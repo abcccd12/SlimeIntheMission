@@ -5,9 +5,7 @@ using UnityEngine.UI;
 
 namespace Utilities.Editor.PlayMode
 {
-    /// <summary>
-    /// Temporary workaround for a UnityEditor bug affecting Unity 6.0.0f4 through 6.0.0f6.
-    /// </summary>
+    // 플레이모드들어가면 ui셀렉션때문에 에러남. 유니티버그인듯
     [InitializeOnLoad]
     public static class UiGraphicSelectionPlayModeGuard
     {

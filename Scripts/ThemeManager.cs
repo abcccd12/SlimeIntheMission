@@ -67,7 +67,7 @@ Theme current = Theme.normal;
     void Update()
     {
                int band = Mathf.FloorToInt(slime.transform.position.y / step);
-               if(band != lastTheme)
+               if(band != lastTheme) // 이거안하니까 매프레임재생됨
                {
                 lastTheme = band;
                 index = band % 4;
@@ -147,7 +147,7 @@ Theme current = Theme.normal;
         if (Raincloud == null) return;
 
         if (_rainCloudInstance != null)
-            Destroy(_rainCloudInstance);
+            Destroy(_rainCloudInstance); // 안지우면 구름쌓임
 
         float y = (band + 1) * step;
          _rainCloudInstance = Instantiate(Raincloud, new Vector3(0f, y, 0f), Quaternion.identity);

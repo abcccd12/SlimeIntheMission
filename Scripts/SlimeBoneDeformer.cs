@@ -1,15 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// 슬라임 몸통(SlimeBody) 안의 bone Transform들만 움직여서
-/// "벽에 눌러 붙은" 표면 변형 / MaxTrigger 눌림을 표현하는 컴포넌트.
-///
-/// 핵심:
-/// - Rigidbody / Collider / SlimeRoot / sizeRoot / faceRoot는 건드리지 않는다.
-/// - 오직 bone.localPosition만 바꾼다.
-/// - 모든 변형은 Awake에서 저장한 base localPosition 기준으로 계산한다.
-/// </summary>
 public class SlimeBoneDeformer : MonoBehaviour
 {
     [Header("Bones")]
@@ -22,58 +13,42 @@ public class SlimeBoneDeformer : MonoBehaviour
     [SerializeField] private Transform backBone;
 
     [Header("Stick Deform")]
-    [Tooltip("벽에 가장 강하게 붙는 bone의 이동량.")]
     [SerializeField] private float mainStickAmount = 0.35f;
 
-    [Tooltip("옆 bone이 벽 방향으로 따라오는 양.")]
     [SerializeField] private float sideStickAmount = 0.16f;
 
-    [Tooltip("벽 반대쪽 bone이 둥글게 유지되도록 반대로 밀리는 양.")]
     [SerializeField] private float oppositePushAmount = 0.12f;
 
-    [Tooltip("옆 bone이 서로 벌어지는 양.")]
     [SerializeField] private float verticalSpreadAmount = 0.08f;
 
-    [Tooltip("붙을 때 bone이 target으로 가는 속도.")]
     [SerializeField] private float deformLerpSpeed = 18f;
 
-    [Tooltip("떨어질 때 bone이 base로 돌아오는 속도.")]
     [SerializeField] private float releaseLerpSpeed = 12f;
 
-    [Tooltip("붙어있는 동안 메인 bone이 미세하게 출렁이는 양.")]
     [SerializeField] private float stuckWobbleAmount = 0.025f;
 
     [SerializeField] private float stuckWobbleSpeed = 4f;
 
     [Header("Direction Fix")]
-    [Tooltip("변형이 벽 반대로 튀어나오면 켜라.")]
-    [SerializeField] private bool invertStickDirection = false;
+    [SerializeField] private bool invertStickDirection = false; // 반대로붙음 켜니까됨 이유모름
 
-    [Tooltip("좌/우 벽에서 붙는 bone이 반대면 켜라.")]
     [SerializeField] private bool swapLeftRight = false;
 
     [Header("MaxTrigger Direct Squash")]
-    [Tooltip("MaxTrigger 발사 순간 topBone을 아래로 내리는 양.")]
     [SerializeField] private float maxTriggerTopDownAmount = 0.25f;
 
-    [Tooltip("MaxTrigger 발사 순간 bottomBone을 위로 올리는 양.")]
     [SerializeField] private float maxTriggerBottomUpAmount = 0.10f;
 
-    [Tooltip("MaxTrigger 발사 순간 left/right bone을 양옆으로 벌리는 양.")]
     [SerializeField] private float maxTriggerSideSpreadAmount = 0.10f;
 
-    [Tooltip("MaxTrigger 눌림 target으로 가는 속도.")]
     [SerializeField] private float maxTriggerSquashLerpSpeed = 60f;
 
-    [Tooltip("MaxTrigger 눌림을 유지하는 시간.")]
     [SerializeField] private float maxTriggerSquashHoldTime = 0.22f;
 
-    [Tooltip("켜면 MaxTrigger 순간 bone을 target 위치로 즉시 이동시켜서 눌림이 바로 보인다.")]
-    [SerializeField] private bool maxTriggerSnapFirstFrame = true;
+    [SerializeField] private bool maxTriggerSnapFirstFrame = true; // lerp하니까 눌린게안보임
 
     private float _maxTriggerSquashTimer;
 
-    // bone별 기본 위치 / 목표 위치
     private readonly Dictionary<Transform, Vector3> _base = new Dictionary<Transform, Vector3>();
     private readonly Dictionary<Transform, Vector3> _target = new Dictionary<Transform, Vector3>();
     private readonly List<Transform> _bones = new List<Transform>();
@@ -140,14 +115,6 @@ public class SlimeBoneDeformer : MonoBehaviour
         }
     }
 
-    // ======================================================================
-    // public 훅
-    // ======================================================================
-
-    /// <summary>
-    /// 벽에 붙을 때 호출.
-    /// contactNormal을 보고 어느 벽인지 판단한 뒤, 움직일 bone을 직접 지정한다.
-    /// </summary>
     public void OnStick(Vector3 contactNormal)
     {
         _maxTriggerSquashTimer = 0f;
@@ -171,10 +138,9 @@ public class SlimeBoneDeformer : MonoBehaviour
 
         if (Mathf.Abs(n.x) > Mathf.Abs(n.y))
         {
-            // 좌/우 벽
             if (n.x < 0f)
             {
-                // 오른쪽 벽
+                // 오른쪽벽
                 ApplyStick(
                     main: L,
                     opposite: R,
@@ -187,7 +153,6 @@ public class SlimeBoneDeformer : MonoBehaviour
             }
             else
             {
-                // 왼쪽 벽
                 ApplyStick(
                     main: R,
                     opposite: L,
@@ -201,10 +166,8 @@ public class SlimeBoneDeformer : MonoBehaviour
         }
         else
         {
-            // 상/하 벽
             if (n.y < 0f)
             {
-                // 천장
                 ApplyStick(
                     main: bottomBone,
                     opposite: topBone,
@@ -217,7 +180,6 @@ public class SlimeBoneDeformer : MonoBehaviour
             }
             else
             {
-                // 바닥 / 아래 벽
                 ApplyStick(
                     main: topBone,
                     opposite: bottomBone,
@@ -234,23 +196,9 @@ public class SlimeBoneDeformer : MonoBehaviour
         _currentLerpSpeed = deformLerpSpeed;
     }
 
-    /// <summary>
-    /// MaxTrigger 직선 발사 순간 호출.
-    /// 방향/속도/ratio 계산 없이, 정해진 bone을 정해진 방향으로 직접 움직인다.
-    /// </summary>
     public void OnMaxTriggerSquash(Vector3 travelDir, float amountMultiplier = 1f)
     {
-        // MaxTrigger도 벽 붙기와 같은 ApplyStick 방식으로 처리.
-        // 바닥/아래 벽에 붙는 것처럼:
-        // main = topBone
-        // opposite = bottomBone
-        // sideA/B = left/right
-        // wallDir = Vector3.down
-        //
-        // 즉, 위쪽 bone을 아래로 강하게 누르고,
-        // 아래쪽 bone은 반대로 살짝 밀고,
-        // 좌우 bone은 아래쪽으로 따라오면서 좌우로 퍼진다.
-
+        // travelDir쓰려다 방향이상해서 그냥아래로누름
         _maxTriggerSquashTimer = 0f;
 
         Transform L = swapLeftRight ? rightBone : leftBone;
@@ -266,7 +214,7 @@ public class SlimeBoneDeformer : MonoBehaviour
             spreadB: Vector3.right
         );
 
-        _isStuck = false; // 벽에 붙은 상태는 아님. wobble은 끔.
+        _isStuck = false;
         _activeMainBone = null;
         _activeWallDir = Vector3.zero;
 
@@ -286,9 +234,7 @@ public class SlimeBoneDeformer : MonoBehaviour
             $"[BONE MAX APPLYSTICK] main=top, wallDir=down, hold={maxTriggerSquashHoldTime:F2}"
         );
     }
-    /// <summary>
-    /// 부드럽게 원래 형태로 되돌린다.
-    /// </summary>
+
     public void Release()
     {
         _maxTriggerSquashTimer = 0f;
@@ -302,9 +248,6 @@ public class SlimeBoneDeformer : MonoBehaviour
         _currentLerpSpeed = releaseLerpSpeed;
     }
 
-    /// <summary>
-    /// 즉시 기본 형태로 되돌린다.
-    /// </summary>
     public void ResetBones()
     {
         _maxTriggerSquashTimer = 0f;
@@ -323,17 +266,10 @@ public class SlimeBoneDeformer : MonoBehaviour
         _currentLerpSpeed = releaseLerpSpeed;
     }
 
-    /// <summary>
-    /// 미끄러질 때는 특별 변형 없이 중립으로 되돌린다.
-    /// </summary>
     public void OnSlide(Vector3 slideDir)
     {
         Release();
     }
-
-    // ======================================================================
-    // 내부: bone target 설정
-    // ======================================================================
 
     private void ApplyStick(
         Transform main,

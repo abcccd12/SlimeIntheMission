@@ -8,7 +8,7 @@ public class cloud : MonoBehaviour
     void Awake()
     {
         if (col == null)
-            col = GetComponent<Collider>();
+            col = GetComponent<Collider>(); // 인스펙터에 안넣음
 
         col.isTrigger = true;
     }
@@ -20,7 +20,7 @@ public class cloud : MonoBehaviour
 
     void OnTriggerExit(Collider other)
     {
-        col.isTrigger = false; 
+        col.isTrigger = false; // 안끄니까 계속통과함
          Debug.Log($"Cloud trigger, isTrigger={col.isTrigger}");
     }
 

@@ -12,7 +12,7 @@ public class Beesound : MonoBehaviour
     {
         if (other.CompareTag("Slime"))
         {
-            sound.PlayFeedbacks();
+            sound.PlayFeedbacks(); // 나갈때안끄니까 계속남
         }
     }
 

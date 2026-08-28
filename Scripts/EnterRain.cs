@@ -22,7 +22,7 @@ public class EnterRain : MonoBehaviour
         if (other.CompareTag("Slime"))
         {
             rainsound.PlayFeedbacks();
-            Wallsurface.GlobalSlippery = true;
+            Wallsurface.GlobalSlippery = true; // 안켜니까 비오는데 안미끄러움
         }
     }
 
@@ -30,7 +30,7 @@ public class EnterRain : MonoBehaviour
     {
 
         rainsound.StopFeedbacks();
-        Wallsurface.GlobalSlippery = false;
+        Wallsurface.GlobalSlippery = false; // 나갈때 안끄니까 계속미끄러움
         
     }
 }

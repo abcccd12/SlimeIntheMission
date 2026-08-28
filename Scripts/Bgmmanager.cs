@@ -13,12 +13,12 @@ public class Bgmmanager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
             bgmSource = GetComponent<AudioSource>();
-            bgmSource.loop = true;
+            bgmSource.loop = true; // loop안켜니까 노래끊김
 
         }
         else
         {
-            Destroy(gameObject);
+            Destroy(gameObject); // 두번생기면 소리겹침
         }
     }
 

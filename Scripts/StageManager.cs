@@ -54,7 +54,7 @@ public class StageManager : MonoBehaviour
     private void Onscene(Scene scene, LoadSceneMode mode)
     {
 
-        GameObject spawn = GameObject.Find("SpawnPoint");//정적인 메소드. 
+        GameObject spawn = GameObject.Find("SpawnPoint");//정적인 메소드. 이름으로찾는거 별로인거같은데 일단이렇게 
            
         
         if (spawn == null)
@@ -67,7 +67,7 @@ public class StageManager : MonoBehaviour
             SlimeLaunchController slime = go.GetComponentInChildren<SlimeLaunchController>();
             if (slime == null)
             {
-                    Debug.Log("null");
+                    Debug.Log("null"); // 예외처리 안했더니오류생김
                 
             }
             if (slime != null)

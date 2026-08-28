@@ -79,7 +79,7 @@ public class MoveBee : MonoBehaviour
         
         transform.rotation = facingRight
             ? Quaternion.Euler(currentX, 90f, currentZ)
-            : Quaternion.Euler(currentX, -90f, currentZ);
+            : Quaternion.Euler(currentX, -90f, currentZ); // y만바꾸니까 xz초기화됨 유지해야함
     }
     
     private bool MoveTo(Transform target)

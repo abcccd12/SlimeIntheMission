@@ -16,7 +16,7 @@ public class MushroomParetns : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other){
 
-        parentsMove.OnParentTriggerEnter(other);
+        parentsMove.OnParentTriggerEnter(other); // 트리거는여기있는데 로직은부모에있음 왜이렇게했지
         
     }
 }
